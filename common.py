@@ -2,6 +2,7 @@ from os.path import join as ospj
 
 from os.path import expanduser
 ROOT_DIR = ospj(expanduser("~"), "scratch")  # TODO change this to your root path // root dir
+#ROOT_DIR = "./"  # TODO change this to your root path // root dir
 DATA_PATH = ospj(ROOT_DIR, "datasets")       # TODO change this to your data path // dataset path
 EXPS_PATH = ospj(ROOT_DIR, "logs_tsm")       # TODO change this to your logs path // saving logs
 
@@ -30,3 +31,6 @@ def set_manual_data_path(data_path, exps_path):
 
     global JESTER_FRAMES
     JESTER_FRAMES = ospj(DATA_PATH, "jester", "20bn-jester-v1")
+
+    global ANET_FRAMES
+    ANET_FRAMES = ospj(DATA_PATH, "activity-net-v1.3", "frames") 

@@ -1,5 +1,13 @@
 import common
 
+
+def return_actnet():
+    root_data = common.ANET_FRAMES
+    filename_categories = 'data/anet/classInd.txt'
+    filename_imglist_train = "data/anet/train_split.txt"
+    filename_imglist_val = "data/anet/validation_split.txt"
+    return filename_categories, filename_imglist_train, filename_imglist_val, root_data
+
 def return_something():
     root_data = common.STHV1_FRAMES
     filename_categories = 'data/somethingv1/classInd.txt'
@@ -35,7 +43,8 @@ def return_dataset(dataset, data_path):
     dict_single = {'something': return_something,
                    'somethingv2': return_somethingv2,
                    'jester': return_jester,
-                   'minik': return_minik}
+                   'minik': return_minik,
+                   'anet': return_actnet}
     common.set_manual_data_path(data_path, None)
     file_categories, file_imglist_train, file_imglist_val, root_data = dict_single[dataset]()
 
@@ -43,5 +52,6 @@ def return_dataset(dataset, data_path):
         lines = f.readlines()
     categories = [item.rstrip() for item in lines]
     n_class = len(categories)
-    prefix = '{:05d}.jpg'
+    prefix = '{:05d}.jpg' if dataset != 'anet' else 'image_{:05d}.jpg'
+    print('{}: {} classes'.format(dataset, n_class))
     return n_class, file_imglist_train, file_imglist_val, root_data, prefix

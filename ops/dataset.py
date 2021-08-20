@@ -86,7 +86,7 @@ class TSNDataSet(data.Dataset):
 
     def _parse_list(self):
         # check the frame number is large >3:
-        splitter = " "
+        splitter = "," if self.dataset in ["anet", "fcvid"] else " "
         tmp = [x.strip().split(splitter) for x in open(self.list_file)]
 
         if any(len(items)>=3 for items in tmp) and self.dataset=="minik":
