@@ -17,7 +17,7 @@ from ops.transforms import *
 from ops import dataset_config
 from ops.utils import AverageMeter, accuracy, cal_map, Recorder, \
     init_gflops_table, compute_gflops_by_mask, adjust_learning_rate
-from opts import parser
+from opts_ import parser
 from ops.my_logger import Logger
 import numpy as np
 import common
@@ -49,6 +49,20 @@ def main():
     base_model_gflops, gflops_list, g_meta = init_gflops_table(model, args)
     policies = model.get_optim_policies()
     optimizer = torch.optim.SGD(policies, args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
+    
+    if args.resume:
+        if os.path.isfile(args.resume):
+            print(("=> loading checkpoint '{}'".format(args.resume)))
+            checkpoint = torch.load(args.resume)
+            args.start_epoch = checkpoint['epoch']
+            best_prec1 = checkpoint['best_prec1']
+            model.load_state_dict(checkpoint['state_dict'])
+            optimizer.load_state_dict(checkpoint['optimizer'])
+            print(("=> loaded checkpoint '{}' (epoch {})"
+                   .format(args.evaluate, checkpoint['epoch'])))
+        else:
+            print(("=> no checkpoint found at '{}'".format(args.resume)))
+            
     model = torch.nn.DataParallel(model, device_ids=args.gpus).cuda()
 
     if test_mode or args.base_pretrained_from != "":
@@ -173,7 +187,9 @@ def get_data_loaders(model, prefix, args):
                                save_meta=args.save_meta,
                                always_flip=args.always_flip,
                                conditional_flip=args.conditional_flip,
-                               adaptive_flip=args.adaptive_flip)
+                               adaptive_flip=args.adaptive_flip,
+                               rescale_to=args.rescale_to
+                               )
 
     val_dataset = TSNDataSet(args.root_path, args.val_list,
                              num_segments=args.num_segments,
@@ -184,7 +200,9 @@ def get_data_loaders(model, prefix, args):
                              dataset=args.dataset,
                              filelist_suffix=args.filelist_suffix,
                              folder_suffix=args.folder_suffix,
-                             save_meta=args.save_meta)
+                             save_meta=args.save_meta,
+                             rescale_to=args.rescale_to
+                             )
 
     train_loader = build_dataflow(train_dataset, True, args.batch_size, args.workers, args.not_pin_memory)
     val_loader = build_dataflow(val_dataset, False, args.batch_size, args.workers, args.not_pin_memory)

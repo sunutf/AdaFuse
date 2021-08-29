@@ -46,8 +46,9 @@ class TSNDataSet(data.Dataset):
                  random_shift=True, test_mode=False,
                  remove_missing=False, dense_sample=False, twice_sample=False,
                  dataset=None, filelist_suffix="", folder_suffix=None, save_meta=False,
-                 always_flip=False, conditional_flip=False, adaptive_flip=False):
-
+                 always_flip=False, conditional_flip=False, adaptive_flip=False, rescale_to=224):
+        
+        self.rescale_to = rescale_to
         self.root_path = root_path
         # self.list_file = list_file
         self.list_file = \
@@ -211,26 +212,29 @@ class TSNDataSet(data.Dataset):
         return_label = record.label
         # in training, transform0-> flip;  transform1->noflip
         # in val data loader, two transforms are the same (noflip)
+        
         if self.always_flip:  # always flip in training data loader no matter what
             process_data = self.transform[0](images)  # flip (only in train)
-
         elif self.conditional_flip:  # flip in training data loader only if label not contains left/right semantic
             if self.dataset in switch_d and record.label[0].item() in switch_d[self.dataset]:  # special labels
                 process_data = self.transform[1](images)  # no flip
             else:
                 process_data = self.transform[0](images)  # flip
-
         else:
             if "something" in self.dataset or "jester" in self.dataset:
                 process_data = self.transform[1](images)  # no flip
             else:
                 process_data = self.transform[0](images)  # flip
-
+        
+        if self.rescale_to != 224:
+            process_data = self.rescale_proc(process_data, self.rescale_to)
         if self.save_meta:
             return process_data, record.path, indices, return_label
         else:
             return process_data, return_label
 
+    def rescale_proc(self, input_data, size):
+        return torch.nn.functional.interpolate(input_data.unsqueeze(1), size=size, mode='nearest').squeeze(1)   
 
     def __len__(self):
         return len(self.video_list)

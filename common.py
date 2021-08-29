@@ -1,10 +1,10 @@
 from os.path import join as ospj
 
 from os.path import expanduser
-ROOT_DIR = ospj(expanduser("~"), "scratch")  # TODO change this to your root path // root dir
-#ROOT_DIR = "./"  # TODO change this to your root path // root dir
-DATA_PATH = ospj(ROOT_DIR, "datasets")       # TODO change this to your data path // dataset path
-EXPS_PATH = ospj(ROOT_DIR, "logs_tsm")       # TODO change this to your logs path // saving logs
+#ROOT_DIR = ospj(expanduser("~"), "scratch")  # TODO change this to your root path // root dir
+ROOT_DIR = "./"  # TODO change this to your root path // root dir
+DATA_PATH = ospj(ROOT_DIR, "../datasets")       # TODO change this to your data path // dataset path
+EXPS_PATH = ospj(ROOT_DIR, "../logs_tsm")       # TODO change this to your logs path // saving logs
 
 
 def inner_set_manual_data_path(data_path, exps_path):
